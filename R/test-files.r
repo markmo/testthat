@@ -166,13 +166,13 @@ sys.source2 <- function(file, envir = parent.frame(), filter = NULL, tag = NULL)
     exprs <- Filter(function (expr) {
         parts <- as.character(expr)
         parts[1] != "test_that" || grepl(filter, parts[2])
-      })
+      }, exprs)
   }
   if (!is.null(tag)) {
     exprs <- Filter(function (expr) {
         parts <- as.character(expr)
         parts[1] != "test_that" || tolower(parts[4]) == tolower(tag)
-      })
+      }, exprs)
   }
 
   n <- length(exprs)
