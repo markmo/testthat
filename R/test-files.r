@@ -29,7 +29,7 @@ test_env <- function() {
 #' @export
 test_dir <- function(path, filter = NULL, reporter = "summary",
                                           env = test_env(),
-                                          filter = NULL, tag = NULL, ...) {
+                                          testFilter = NULL, tag = NULL, ...) {
   current_reporter <- find_reporter(reporter)
   source_test_helpers(path, env)
   paths <- find_test_scripts(path, filter, ...)
@@ -38,7 +38,7 @@ test_dir <- function(path, filter = NULL, reporter = "summary",
   current_reporter$start_reporter()
   results <- lapply(paths, test_file, env = env,
     reporter = current_reporter, start_end_reporter = FALSE,
-    filter = filter, tag = tag)
+    filter = testFilter, tag = tag)
   current_reporter$end_reporter()
 
   results <- unlist(results, recursive = FALSE)
