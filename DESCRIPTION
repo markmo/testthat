@@ -5,10 +5,11 @@ Description: A unit testing system designed to be fun, flexible and easy to
     set up.
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", c("aut", "cre")),
-    person("RStudio", role = "cph")
+    person("RStudio", role = "cph"),
+    person("Mark", "Moloney", "mmoloney@deloitte.com", role = "ctb")
     )
-URL: https://github.com/hadley/testthat
-BugReports: https://github.com/hadley/testthat/issues
+URL: https://github.com/markmo/testthat
+BugReports: https://github.com/markmo/testthat/issues
 Depends:
     R (>= 3.1.0),
     methods

@@ -28,7 +28,8 @@ test_env <- function() {
 #' @return the results as a "testthat_results" (list)
 #' @export
 test_dir <- function(path, filter = NULL, reporter = "summary",
-                                          env = test_env(), ...) {
+                                          env = test_env(),
+                                          filter = NULL, tag = NULL, ...) {
   current_reporter <- find_reporter(reporter)
   source_test_helpers(path, env)
   paths <- find_test_scripts(path, filter, ...)
@@ -36,7 +37,8 @@ test_dir <- function(path, filter = NULL, reporter = "summary",
 
   current_reporter$start_reporter()
   results <- lapply(paths, test_file, env = env,
-    reporter = current_reporter, start_end_reporter = FALSE)
+    reporter = current_reporter, start_end_reporter = FALSE,
+    filter = filter, tag = tag)
   current_reporter$end_reporter()
 
   results <- unlist(results, recursive = FALSE)
@@ -119,7 +121,7 @@ source_dir <- function(path, pattern = "\\.[rR]$", env = test_env(),
 #' @return the results as a "testthat_results" (list)
 #' @export
 test_file <- function(path, reporter = "summary", env = test_env(),
-                      start_end_reporter = TRUE) {
+                      start_end_reporter = TRUE, filter = NULL, tag = NULL) {
   reporter <- find_reporter(reporter)
   if (is.null(env)) env <- globalenv()
   lister <- ListReporter$new()
@@ -142,7 +144,7 @@ test_file <- function(path, reporter = "summary", env = test_env(),
   fname <- basename(path)
   lister$start_file(fname)
 
-  sys.source2(fname, new.env(parent = env))
+  sys.source2(fname, new.env(parent = env), filter, tag)
   end_context()
 
   if (start_end_reporter) reporter$end_reporter()
@@ -151,7 +153,7 @@ test_file <- function(path, reporter = "summary", env = test_env(),
 }
 
 
-sys.source2 <- function(file, envir = parent.frame()) {
+sys.source2 <- function(file, envir = parent.frame(), filter = NULL, tag = NULL) {
   stopifnot(file.exists(file))
   stopifnot(is.environment(envir))
 
@@ -159,6 +161,19 @@ sys.source2 <- function(file, envir = parent.frame()) {
   srcfile <- srcfilecopy(file, lines, file.info(file)[1, "mtime"],
     isFile = TRUE)
   exprs <- parse(text = lines, n = -1, srcfile = srcfile)
+
+  if (!is.null(filter)) {
+    exprs <- Filter(function (expr) {
+        parts <- as.character(expr)
+        parts[1] != "test_that" || grepl(filter, parts[2])
+      })
+  }
+  if (!is.null(tag)) {
+    exprs <- Filter(function (expr) {
+        parts <- as.character(expr)
+        parts[1] != "test_that" || tolower(parts[4]) == tolower(tag)
+      })
+  }
 
   n <- length(exprs)
   if (n == 0L) return(invisible())

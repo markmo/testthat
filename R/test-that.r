@@ -26,8 +26,8 @@
 #'   expect_equal(sin(pi / 4), 1)
 #' })
 #' }
-test_that <- function(desc, code) {
-  test_code(desc, substitute(code), env = parent.frame())
+test_that <- function(desc, code, tag = NULL) {
+  test_code(desc, substitute(code), env = parent.frame(), tag)
   invisible()
 }
 
@@ -39,7 +39,7 @@ test_that <- function(desc, code) {
 # @param code the code to be tested, needs to be an unevaluated expression
 #   i.e. wrap it in substitute()
 # @param env the parent environment of the environment the test code runs in
-test_code <- function(description, code, env) {
+test_code <- function(description, code, env, tag = NULL) {
   new_test_environment <- new.env(parent = env)
   get_reporter()$start_test(description)
   on.exit(get_reporter()$end_test())
